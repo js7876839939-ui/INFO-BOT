@@ -121,7 +121,7 @@ class InfoCommands(commands.Cog):
             await ctx.send("ℹ️ This server has no saved configuration")
 
     @commands.hybrid_command(name="infochannels", description="List allowed channels")
-    async def list_info_channels(self, ctx: commands.Context):
+    async def list_info_channels(self, ctx):
         guild_id = str(ctx.guild.id)
 
         if guild_id in self.config_data["servers"] and self.config_data["servers"][guild_id]["info_channels"]:
@@ -151,7 +151,7 @@ class InfoCommands(commands.Cog):
 
 @commands.hybrid_command(name="info", description="Displays Free Fire player info")
 @app_commands.describe(uid="FREE FIRE UID")
-async def player_info(self, ctx: commands.Context, uid: str):
+async def player_info(self, ctx, uid: str):
     guild_id = str(ctx.guild.id)
 
     if not uid.isdigit() or len(uid) < 6:
