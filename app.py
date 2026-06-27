@@ -27,6 +27,8 @@ def run_flask():
 
 # Discord Bot Setup
 TOKEN = os.getenv("TOKEN")
+print(f"TOKEN: '{TOKEN}'")
+print(f"Length: {len(TOKEN)}")
 if not TOKEN:
     raise ValueError("Missing TOKEN in environment")
 
@@ -112,6 +114,5 @@ if __name__ == "__main__":
         asyncio.run(main())
     else:
         bot = Bot()
-        print(f"TOKEN: '{TOKEN}'")
-        print(f"Length: {len(TOKEN)}")
+       
         bot.run(TOKEN)
