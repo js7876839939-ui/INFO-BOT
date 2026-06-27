@@ -96,7 +96,7 @@ class InfoCommands(commands.Cog):
 
     @commands.hybrid_command(name="setinfochannel", description="Allow a channel for !info commands")
     @commands.has_permissions(administrator=True)
-    async def set_info_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+    async def set_info_channel(self, ctx, channel: discord.TextChannel):
         guild_id = str(ctx.guild.id)
         self.config_data["servers"].setdefault(guild_id, {"info_channels": [], "config": {}})
         if str(channel.id) not in self.config_data["servers"][guild_id]["info_channels"]:
@@ -108,7 +108,7 @@ class InfoCommands(commands.Cog):
 
     @commands.hybrid_command(name="removeinfochannel", description="Remove a channel from !info commands")
     @commands.has_permissions(administrator=True)
-    async def remove_info_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+    async def remove_info_channel(self, ctx, channel: discord.TextChannel):
         guild_id = str(ctx.guild.id)
         if guild_id in self.config_data["servers"]:
             if str(channel.id) in self.config_data["servers"][guild_id]["info_channels"]:
