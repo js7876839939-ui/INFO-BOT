@@ -112,4 +112,6 @@ if __name__ == "__main__":
         asyncio.run(main())
     else:
         bot = Bot()
+        print(f"TOKEN: '{TOKEN}'")
+        print(f"Length: {len(TOKEN)}")
         bot.run(TOKEN)
