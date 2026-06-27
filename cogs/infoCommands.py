@@ -146,34 +146,29 @@ class InfoCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.hybrid_command(name="info", description="Displays Free Fire player info")
-    @app_commands.describe(uid="FREE FIRE UID")
-    async def player_info(self, ctx: commands.Context, uid: str):
 
+
+
+@commands.hybrid_command(name="info", description="Displays Free Fire player info")
+@app_commands.describe(uid="FREE FIRE UID")
+async def player_info(self, ctx: commands.Context, uid: str):
     guild_id = str(ctx.guild.id)
 
-    # =========================
-    # 🔹 UID VALIDATION
-    # =========================
     if not uid.isdigit() or len(uid) < 6:
         return await ctx.reply(
             "❌ Invalid UID!\n- Only numbers allowed\n- Minimum 6 digits required",
             mention_author=False
         )
 
-    # =========================
-    # 🔹 CHANNEL CHECK
-    # =========================
     if not await self.is_channel_allowed(ctx):
         return await ctx.send("❌ This command is not allowed in this channel.")
 
-    # =========================
-    # 🔹 COOLDOWN SYSTEM
-    # =========================
     cooldown = self.config_data["global_settings"]["default_cooldown"]
 
     if guild_id in self.config_data["servers"]:
-        cooldown = self.config_data["servers"][guild_id]["config"].get("cooldown", cooldown)
+        cooldown = self.config_data["servers"][guild_id]["config"].get(
+            "cooldown", cooldown
+        )
 
     if ctx.author.id in self.cooldowns:
         last_used = self.cooldowns[ctx.author.id]
@@ -183,6 +178,24 @@ class InfoCommands(commands.Cog):
             return await ctx.send(
                 f"⏳ Please wait {remaining}s before using this command again"
             )
+
+    self.cooldowns[ctx.author.id] = datetime.now()
+
+    if not await self.is_channel_allowed(ctx):
+        return await ctx.send("❌ This command is not allowed in this channel.")
+
+    cooldown = self.config_data["global_settings"]["default_cooldown"]
+    if guild_id in self.config_data["servers"]:
+        cooldown = self.config_data["servers"][guild_id]["config"].get("cooldown", cooldown)
+
+        if ctx.author.id in self.cooldowns:
+         last_used = self.cooldowns[ctx.author.id]
+
+    if (datetime.now() - last_used).seconds < cooldown:
+        remaining = cooldown - (datetime.now() - last_used).seconds
+        return await ctx.send(
+            f"⏳ Please wait {remaining}s before using this command again"
+        )
 
     self.cooldowns[ctx.author.id] = datetime.now()
 
@@ -328,11 +341,11 @@ class InfoCommands(commands.Cog):
         # =========================
         # 🔹 FINAL ERROR HANDLER
         # =========================
-        except Exception as e:
-            await ctx.send(f"❌ Unexpected error: {e}")
+            except Exception as e:
+                await ctx.send(f"❌ Unexpected error: {e}")
 
-        finally:
-            gc.collect()
+            finally:
+             gc.collect()
     except Exception as e:
         return await ctx.send(f"❌ Unexpected error: {e}")
 
