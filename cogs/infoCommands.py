@@ -144,11 +144,6 @@ class InfoCommands(commands.Cog):
                 color=discord.Color.blue()
             )
 
-        await ctx.send(embed=embed)
-
-
-
-
 @commands.hybrid_command(name="info", description="Displays Free Fire player info")
 @app_commands.describe(uid="FREE FIRE UID")
 async def player_info(self, ctx, uid: str):
@@ -181,56 +176,31 @@ async def player_info(self, ctx, uid: str):
 
     self.cooldowns[ctx.author.id] = datetime.now()
 
-    if not await self.is_channel_allowed(ctx):
-        return await ctx.send("❌ This command is not allowed in this channel.")
-
-    cooldown = self.config_data["global_settings"]["default_cooldown"]
-    if guild_id in self.config_data["servers"]:
-        cooldown = self.config_data["servers"][guild_id]["config"].get("cooldown", cooldown)
-
-        if ctx.author.id in self.cooldowns:
-         last_used = self.cooldowns[ctx.author.id]
-
-    if (datetime.now() - last_used).seconds < cooldown:
-        remaining = cooldown - (datetime.now() - last_used).seconds
-        return await ctx.send(
-            f"⏳ Please wait {remaining}s before using this command again"
-        )
-
-    self.cooldowns[ctx.author.id] = datetime.now()
-
-    # =========================
-    # 🔹 API CALL START
-    # =========================
     try:
-        async with ctx.typing():
+     async with ctx.typing():
+        async with self.session.get(
+            f"{self.api_url}?uid={uid}&key={self.api_key}"
+        ) as response:
 
-            async with self.session.get(
-                f"{self.api_url}?uid={uid}&key={self.api_key}"
-            ) as response:
+            if response.status == 404:
+                return await ctx.send(f"❌ Player not found: {uid}")
 
-                # ❌ PLAYER NOT FOUND
-                if response.status == 404:
-                    return await ctx.send(f"❌ Player not found: {uid}")
+            if response.status != 200:
+                return await ctx.send("❌ API Error. Try again later.")
 
-                # ❌ API ERROR
-                if response.status != 200:
-                    return await ctx.send("❌ API error. Try again later.")
+            data = await response.json()
 
-                # ✅ SUCCESS RESPONSE
-                data = await response.json()
-                # =========================
-            # 🔹 DATA PARSING
-            # =========================
-            basic_info = data.get('basicInfo', {})
-            captain_info = data.get('captainBasicInfo', {})
-            clan_info = data.get('clanBasicInfo', {})
-            credit_score_info = data.get('creditScoreInfo', {})
-            pet_info = data.get('petInfo', {})
-            profile_info = data.get('profileInfo', {})
-            social_info = data.get('socialInfo', {})
+            basic_info = data.get("basicInfo", {})
+            captain_info = data.get("captainBasicInfo", {})
+            clan_info = data.get("clanBasicInfo", {})
+            credit_score_info = data.get("creditScoreInfo", {})
+            pet_info = data.get("petInfo", {})
+            profile_info = data.get("profileInfo", {})
+            social_info = data.get("socialInfo", {})
 
-            region = basic_info.get('region', 'Not Found')
+            region = basic_info.get("region", "Not Found")
+
+            # Aage ka code...
 
             # =========================
             # 🔹 EMBED START
