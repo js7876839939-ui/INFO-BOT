@@ -162,12 +162,15 @@ class InfoCommands(commands.Cog):
 
         params = {
             "uid": uid,
-            "key": self.api_key
+            "key": self.api_key,
+            "dev": self.dev_uid
         }
 
         try:
             async with self.session.get(self.api_url, params=params, timeout=20) as resp:
-
+                print("STATUS:", resp.status)
+                print("URL:", resp.url)
+                print(await resp.text())
                 if resp.status != 200:
                     return await ctx.send("❌ API Error.")
 
