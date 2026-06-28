@@ -143,10 +143,7 @@ class InfoCommands(commands.Cog):
                 description="All channels are allowed (no restriction configured)",
                 color=discord.Color.blue()
             )
-@commands.hybrid_command(
-    name="info",
-    description="Displays Free Fire player info"
-)
+@commands.hybrid_command(name="info",description="Displays Free Fire player info")
 @app_commands.describe(uid="FREE FIRE UID")
 async def player_info(self, ctx, uid: str):
 
