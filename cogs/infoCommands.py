@@ -150,89 +150,84 @@ class InfoCommands(commands.Cog):
 @app_commands.describe(uid="FREE FIRE UID")
 async def player_info(self, ctx, uid: str):
 
+    # UID Validation
     if not uid.isdigit():
-        return await ctx.send("❌ Invalid UID")
+        return await ctx.reply("❌ Invalid UID.")
 
+    # Allowed Channel Check
     if not await self.is_channel_allowed(ctx):
-        return await ctx.send("❌ This command is not allowed in this channel.")
+        return await ctx.reply("❌ This command is not allowed in this channel.")
 
-    await ctx.typing()
+    await ctx.defer()
+
+    params = {
+        "uid": uid,
+        "key": self.api_key
+    }
 
     try:
-        params = {
-            "uid": uid,
-            "key": self.api_key
-        }
-
-        async with self.session.get(self.api_url, params=params) as resp:
+        async with self.session.get(self.api_url, params=params, timeout=20) as resp:
 
             if resp.status != 200:
-                return await ctx.send("❌ API Error")
+                return await ctx.send("❌ API Error.")
 
             data = await resp.json()
 
-        if "result" not in data:
-            return await ctx.send("❌ Player not found")
-
-        result = data["result"]
-
-        account = result.get("AccountInfo", {})
-        social = result.get("socialinfo", {})
-        pet = result.get("petInfo", {})
-
-        embed = discord.Embed(
-            title="🎮 Free Fire Player",
-            color=0x00ff99
-        )
-
-        embed.add_field(
-            name="Basic Info",
-            value=f"""
-**Name:** {account.get("AccountName","N/A")}
-**UID:** {social.get("AccountID","N/A")}
-**Level:** {account.get("AccountLevel","N/A")}
-**Region:** {account.get("AccountRegion","N/A")}
-**Likes:** {account.get("AccountLikes","N/A")}
-**Version:** {account.get("ReleaseVersion","N/A")}
-""",
-            inline=False
-        )
-
-        embed.add_field(
-            name="Rank",
-            value=f"""
-BR Rank : {account.get("BrRankPoint","N/A")}
-CS Rank : {account.get("CsRankPoint","N/A")}
-Season : {account.get("AccountSeasonId","N/A")}
-""",
-            inline=False
-        )
-
-        embed.add_field(
-            name="Pet",
-            value=f"""
-Pet ID : {pet.get("id","N/A")}
-Level : {pet.get("level","N/A")}
-EXP : {pet.get("exp","N/A")}
-""",
-            inline=False
-        )
-
-        embed.add_field(
-            name="Social",
-            value=f"""
-Signature:
-{social.get("AccountSignature","None")}
-""",
-            inline=False
-        )
-
-        embed.set_footer(text="Powered By HL Gaming Official")
-
-        await ctx.send(embed=embed)
-
     except Exception as e:
-        await ctx.send(f"❌ Error : {e}")
+        return await ctx.send(f"❌ API Error:\n```{e}```")
+
+    if "result" not in data:
+        return await ctx.send("❌ Player not found.")
+
+    result = data["result"]
+
+    acc = result.get("AccountInfo", {})
+    social = result.get("socialinfo", {})
+    pet = result.get("petInfo", {})
+
+    embed = discord.Embed(
+        title=f"🎮 {acc.get('AccountName','Unknown')}",
+        color=0x00ff99
+    )
+
+    embed.add_field(
+        name="👤 Basic",
+        value=(
+            f"**UID:** {social.get('AccountID','N/A')}\n"
+            f"**Level:** {acc.get('AccountLevel','N/A')}\n"
+            f"**Region:** {acc.get('AccountRegion','N/A')}\n"
+            f"**Likes:** {acc.get('AccountLikes','N/A')}"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
+        name="🏆 Rank",
+        value=(
+            f"BR Points: {acc.get('BrRankPoint','N/A')}\n"
+            f"CS Points: {acc.get('CsRankPoint','N/A')}"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
+        name="🐶 Pet",
+        value=(
+            f"ID: {pet.get('id','N/A')}\n"
+            f"Level: {pet.get('level','N/A')}"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
+        name="📝 Signature",
+        value=social.get("AccountSignature", "No Signature"),
+        inline=False
+    )
+
+    embed.set_footer(text="Powered by HL Gaming Official API")
+
+    await ctx.send(embed=embed)
 
     async def cog_unload(self):
         await self.session.close()
