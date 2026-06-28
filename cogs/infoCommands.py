@@ -146,10 +146,10 @@ class InfoCommands(commands.Cog):
     @commands.hybrid_command(name="testinfo")
     async def testinfo(self, ctx):
         await ctx.send("Test OK")
-@commands.hybrid_command(name="info", description="Displays Free Fire player info")
-@app_commands.describe(uid="FREE FIRE UID")
-async def player_info(self, ctx, uid: str):
-
+    @commands.hybrid_command(name="info", description="Displays Free Fire player info")
+    @app_commands.describe(uid="FREE FIRE UID")
+    async def player_info(self, ctx, uid: str):
+       await ctx.send(f"UID: {uid}")
 
     async def cog_unload(self):
         await self.session.close()
