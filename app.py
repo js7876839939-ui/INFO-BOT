@@ -56,7 +56,10 @@ class Bot(commands.Bot):
         except Exception as e:
             print(f"❌ Failed to load cog: {e}")
             traceback.print_exc()
-        
+            
+            print("Registered commands:")
+        for cmd in self.commands:
+            print("-", cmd.name)        
         await self.tree.sync()
         self.update_status.start()
 
