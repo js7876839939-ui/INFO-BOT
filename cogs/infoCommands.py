@@ -192,55 +192,112 @@ class InfoCommands(commands.Cog):
         acc = result.get("AccountInfo", {})
         social = result.get("socialinfo", {})
         pet = result.get("petInfo", {})
+        guild = result.get("GuildInfo", {})
+        credit = result.get("creditScoreInfo", {})
+
+        from datetime import datetime
+
+        created = datetime.fromtimestamp(
+            int(acc.get("AccountCreateTime", 0))
+        ).strftime("%d %b %Y")
+
+        last_login = datetime.fromtimestamp(
+            int(acc.get("AccountLastLogin", 0))
+        ).strftime("%d %b %Y %I:%M %p")
 
         embed = discord.Embed(
-            title=f"🎮 {acc.get('AccountName','Unknown')}",
+            title=f"👑 {acc.get('AccountName','Unknown')}",
+            description="```yaml\nFREE FIRE PLAYER INFORMATION\n```",
             color=0x00ff99
         )
 
         embed.add_field(
-            name="👤 Basic",
+            name="🎮 BASIC INFORMATION",
             value=(
-                f"**UID:** {social.get('AccountID','N/A')}\n"
-                f"**Level:** {acc.get('AccountLevel','N/A')}\n"
-                f"**Region:** {acc.get('AccountRegion','N/A')}\n"
-                f"**Likes:** {acc.get('AccountLikes','N/A')}"
+                f"**🆔 UID :** `{social.get('AccountID','N/A')}`\n"
+                f"**⭐ Level :** `{acc.get('AccountLevel','N/A')}`\n"
+                f"**🌍 Region :** `{acc.get('AccountRegion','N/A')}`\n"
+                f"**❤️ Likes :** `{acc.get('AccountLikes','0')}`\n"
+                f"**🎖️ Title ID :** `{acc.get('Title','N/A')}`"
             ),
             inline=False
         )
 
         embed.add_field(
-            name="🏆 Rank",
+            name="🏆 RANK",
             value=(
-                f"BR Points: {acc.get('BrRankPoint','N/A')}\n"
-                f"CS Points: {acc.get('CsRankPoint','N/A')}"
+                f"**🔥 BR Rank :** `{acc.get('BrMaxRank','N/A')}`\n"
+                f"**💯 BR Points :** `{acc.get('BrRankPoint','N/A')}`\n"
+                f"**⚔️ CS Rank :** `{acc.get('CsMaxRank','N/A')}`\n"
+                f"**🎯 CS Points :** `{acc.get('CsRankPoint','N/A')}`"
+            ),
+            inline=True
+        )
+
+        embed.add_field(
+            name="🐾 PET",
+            value=(
+                f"**🆔 ID :** `{pet.get('id','N/A')}`\n"
+                f"**⭐ Level :** `{pet.get('level','N/A')}`\n"
+                f"**❤️ EXP :** `{pet.get('exp','N/A')}`"
+            ),
+            inline=True
+        )
+
+        embed.add_field(
+            name="🏰 GUILD",
+            value=(
+                f"**Name :** `{guild.get('GuildName','No Guild')}`\n"
+                f"**ID :** `{guild.get('GuildID','N/A')}`"
             ),
             inline=False
         )
 
         embed.add_field(
-            name="🐶 Pet",
+            name="📜 ACCOUNT",
             value=(
-                f"ID: {pet.get('id','N/A')}\n"
-                f"Level: {pet.get('level','N/A')}"
+                f"**📅 Created :** `{created}`\n"
+                f"**⏰ Last Login :** `{last_login}`\n"
+                f"**💎 EXP :** `{acc.get('AccountEXP','N/A')}`\n"
+                f"**📱 Version :** `{acc.get('ReleaseVersion','N/A')}`"
             ),
             inline=False
         )
 
         embed.add_field(
-            name="📝 Signature",
-            value=social.get("AccountSignature", "No Signature"),
+            name="💬 SOCIAL",
+            value=(
+                f"**📝 Signature :**\n"
+                f"```{social.get('AccountSignature','No Signature')}```"
+            ),
             inline=False
         )
 
-        embed.set_footer(text="Powered by HL Gaming Official API")
+        embed.add_field(
+            name="🛡️ SECURITY",
+            value=f"**Credit Score :** `{credit.get('creditScore','100')}/100`",
+            inline=False
+        )
+
+        embed.set_thumbnail(
+            url="https://i.imgur.com/J5qH6bP.png"
+        )
+
+        embed.set_image(
+            url="https://i.imgur.com/JY5j8YB.png"
+        )
+
+        embed.set_footer(
+            text="⚡ Developed By Jatin",
+            icon_url="https://i.imgur.com/J5qH6bP.png"
+        )
 
         await ctx.send(embed=embed)
 
-    async def cog_unload(self):
+async def cog_unload(self):
         await self.session.close()
 
-    async def _send_player_not_found(self, ctx, uid):
+async def _send_player_not_found(self, ctx, uid):
         embed = discord.Embed(
             title="❌ Player Not Found",
             description=(
@@ -256,7 +313,7 @@ class InfoCommands(commands.Cog):
         )
         await ctx.send(embed=embed, ephemeral=True)
 
-    async def _send_api_error(self, ctx):
+async def _send_api_error(self, ctx):
         await ctx.send(embed=discord.Embed(
             title="⚠️ API Error",
             description="The Free Fire API is not responding. Try again later.",
