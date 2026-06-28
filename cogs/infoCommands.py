@@ -168,13 +168,16 @@ class InfoCommands(commands.Cog):
 
         try:
             async with self.session.get(self.api_url, params=params, timeout=20) as resp:
+                text = await resp.text()
+
                 print("STATUS:", resp.status)
                 print("URL:", resp.url)
-                print(await resp.text())
-                if resp.status != 200:
-                    return await ctx.send("❌ API Error.")
+                print("BODY:", text)
 
-                data = await resp.json()
+            if resp.status != 200:
+             return await ctx.send("❌ API Error.")
+
+            data = json.loads(text)
 
         except Exception as e:
             return await ctx.send(f"❌ API Error:\n```{e}```")
