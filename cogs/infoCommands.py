@@ -143,88 +143,91 @@ class InfoCommands(commands.Cog):
                 description="All channels are allowed (no restriction configured)",
                 color=discord.Color.blue()
             )
-@commands.hybrid_command(name="info",description="Displays Free Fire player info")
-@app_commands.describe(uid="FREE FIRE UID")
-async def player_info(self, ctx, uid: str):
+    @commands.hybrid_command(
+        name="info",
+        description="Displays Free Fire player info"
+    )
+    @app_commands.describe(uid="FREE FIRE UID")
+    async def player_info(self, ctx, uid: str):
 
     # UID Validation
-    if not uid.isdigit():
-        return await ctx.reply("❌ Invalid UID.")
+        if not uid.isdigit():
+            return await ctx.reply("❌ Invalid UID.")
 
-    # Allowed Channel Check
-    if not await self.is_channel_allowed(ctx):
-        return await ctx.reply("❌ This command is not allowed in this channel.")
+        # Allowed Channel Check
+        if not await self.is_channel_allowed(ctx):
+            return await ctx.reply("❌ This command is not allowed in this channel.")
 
-    await ctx.defer()
+        await ctx.defer()
 
-    params = {
-        "uid": uid,
-        "key": self.api_key
-    }
+        params = {
+            "uid": uid,
+            "key": self.api_key
+        }
 
-    try:
-        async with self.session.get(self.api_url, params=params, timeout=20) as resp:
+        try:
+            async with self.session.get(self.api_url, params=params, timeout=20) as resp:
 
-            if resp.status != 200:
-                return await ctx.send("❌ API Error.")
+                if resp.status != 200:
+                    return await ctx.send("❌ API Error.")
 
-            data = await resp.json()
+                data = await resp.json()
 
-    except Exception as e:
-        return await ctx.send(f"❌ API Error:\n```{e}```")
+        except Exception as e:
+            return await ctx.send(f"❌ API Error:\n```{e}```")
 
-    if "result" not in data:
-        return await ctx.send("❌ Player not found.")
+        if "result" not in data:
+            return await ctx.send("❌ Player not found.")
 
-    result = data["result"]
+        result = data["result"]
 
-    acc = result.get("AccountInfo", {})
-    social = result.get("socialinfo", {})
-    pet = result.get("petInfo", {})
+        acc = result.get("AccountInfo", {})
+        social = result.get("socialinfo", {})
+        pet = result.get("petInfo", {})
 
-    embed = discord.Embed(
-        title=f"🎮 {acc.get('AccountName','Unknown')}",
-        color=0x00ff99
-    )
+        embed = discord.Embed(
+            title=f"🎮 {acc.get('AccountName','Unknown')}",
+            color=0x00ff99
+        )
 
-    embed.add_field(
-        name="👤 Basic",
-        value=(
-            f"**UID:** {social.get('AccountID','N/A')}\n"
-            f"**Level:** {acc.get('AccountLevel','N/A')}\n"
-            f"**Region:** {acc.get('AccountRegion','N/A')}\n"
-            f"**Likes:** {acc.get('AccountLikes','N/A')}"
-        ),
-        inline=False
-    )
+        embed.add_field(
+            name="👤 Basic",
+            value=(
+                f"**UID:** {social.get('AccountID','N/A')}\n"
+                f"**Level:** {acc.get('AccountLevel','N/A')}\n"
+                f"**Region:** {acc.get('AccountRegion','N/A')}\n"
+                f"**Likes:** {acc.get('AccountLikes','N/A')}"
+            ),
+            inline=False
+        )
 
-    embed.add_field(
-        name="🏆 Rank",
-        value=(
-            f"BR Points: {acc.get('BrRankPoint','N/A')}\n"
-            f"CS Points: {acc.get('CsRankPoint','N/A')}"
-        ),
-        inline=False
-    )
+        embed.add_field(
+            name="🏆 Rank",
+            value=(
+                f"BR Points: {acc.get('BrRankPoint','N/A')}\n"
+                f"CS Points: {acc.get('CsRankPoint','N/A')}"
+            ),
+            inline=False
+        )
 
-    embed.add_field(
-        name="🐶 Pet",
-        value=(
-            f"ID: {pet.get('id','N/A')}\n"
-            f"Level: {pet.get('level','N/A')}"
-        ),
-        inline=False
-    )
+        embed.add_field(
+            name="🐶 Pet",
+            value=(
+                f"ID: {pet.get('id','N/A')}\n"
+                f"Level: {pet.get('level','N/A')}"
+            ),
+            inline=False
+        )
 
-    embed.add_field(
-        name="📝 Signature",
-        value=social.get("AccountSignature", "No Signature"),
-        inline=False
-    )
+        embed.add_field(
+            name="📝 Signature",
+            value=social.get("AccountSignature", "No Signature"),
+            inline=False
+        )
 
-    embed.set_footer(text="Powered by HL Gaming Official API")
+        embed.set_footer(text="Powered by HL Gaming Official API")
 
-    await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
     async def cog_unload(self):
         await self.session.close()
