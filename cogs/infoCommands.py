@@ -280,16 +280,16 @@ class InfoCommands(commands.Cog):
         )
 
         embed.set_thumbnail(
-            url="https://i.imgur.com/J5qH6bP.png"
+            url=ctx.author.display_avatar.url
         )
 
         embed.set_image(
-            url="https://i.imgur.com/JY5j8YB.png"
+            url="https://www.image2url.com/r2/default/gifs/1782629373097-c0ea39bf-8d60-44da-a912-b7f26a10efcb.gif"
         )
 
         embed.set_footer(
             text="⚡ Developed By Jatin",
-            icon_url="https://i.imgur.com/J5qH6bP.png"
+            icon_url="https://www.image2url.com/r2/default/gifs/1782629373097-c0ea39bf-8d60-44da-a912-b7f26a10efcb.gif"
         )
 
         await ctx.send(embed=embed)
