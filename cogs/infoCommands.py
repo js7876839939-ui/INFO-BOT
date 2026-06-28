@@ -161,10 +161,11 @@ class InfoCommands(commands.Cog):
         await ctx.defer()
 
         params = {
-            "sectionName": "AllData",
-            "userid": self.dev_uid,
-            "api": self.api_key,
-            "PlayerUid": uid
+           "sectionName": "AllData",
+           "PlayerUid": uid,
+           "region": "ind",          # ya user se lo
+           "useruid": self.dev_uid,
+           "api": self.api_key
         }
 
         try:
